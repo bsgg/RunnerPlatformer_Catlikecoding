@@ -24,7 +24,14 @@ namespace RunnerPlatformer
         private Queue<Transform> m_ObjectQueue;
 
         [Header("Platform Settings")]
+
         [SerializeField]
+        private Material[] m_Materials;
+        [SerializeField]
+        private PhysicMaterial[] m_PhysicMaterials;
+
+
+       [SerializeField]
         private Vector3 m_MinSize, m_MaxSize;
 
         [SerializeField]
@@ -62,11 +69,26 @@ namespace RunnerPlatformer
             position.x += scale.x * 0.5f;
             position.y += scale.y * 0.5f;
 
-            Transform o = m_ObjectQueue.Dequeue();
-            o.localScale = scale;
-            o.localPosition = position;
-            m_ObjectQueue.Enqueue(o);
+            Transform newObject = m_ObjectQueue.Dequeue();
+            newObject.localScale = scale;
+            newObject.localPosition = position;
 
+            // Set random materails
+            int matIndex = Random.Range(0, m_Materials.Length);
+            Renderer rendNewObj = newObject.GetComponent<Renderer>();
+            if (rendNewObj)
+            {
+                rendNewObj.material = m_Materials[matIndex];
+            }
+
+            Collider collNewObj = newObject.GetComponent<Collider>();
+            if (collNewObj != null)
+            {
+                collNewObj.material = m_PhysicMaterials[matIndex];
+            }
+
+            // Enqueue the new object
+            m_ObjectQueue.Enqueue(newObject);
             m_NextPosition += new Vector3(
                     Random.Range(m_MinGap.x, m_MaxGap.x + scale.x),
                     Random.Range(m_MinGap.y, m_MaxGap.y),
